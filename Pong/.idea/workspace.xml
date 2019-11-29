@@ -2,11 +2,14 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="9daef7e8-63c0-47c2-89ae-9af13dd7d92f" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/dictionaries/antoniochiappetta.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/Pong.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Pong.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/wimblepong/WimblepongAgents.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/wimblepong/test_agents/SomeAgentGPU/agent.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/wimblepong/test_agents/SomeAgentGPU/model.mdl" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/wimblepong/test_agents/SomeAgentGPU/models.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/wimblepong/test_agents/SomeOtherAgentGPU/agent.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/wimblepong/test_agents/SomeOtherAgentGPU/model.mdl" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/wimblepong/test_agents/SomeOtherAgentGPU/models.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/wimblepong/test_agents/SomeAgent/agent.py" beforeDir="false" afterPath="$PROJECT_DIR$/wimblepong/test_agents/SomeAgent/agent.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/wimblepong/test_agents/SomeOtherAgent/agent.py" beforeDir="false" afterPath="$PROJECT_DIR$/wimblepong/test_agents/SomeOtherAgent/agent.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -20,10 +23,16 @@
   <component name="ProjectId" id="1U1WBqsf4wAH2snf7FS6dvE27EE" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="PropertiesComponent">
+    <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/wimblepong/test_agents" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/wimblepong/test_agents" />
+    </key>
   </component>
   <component name="RunDashboard">
     <option name="ruleStates">
@@ -37,7 +46,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Python.test_SomeAgent">
     <configuration default="true" type="PythonConfigurationType" factoryName="Python">
       <module name="Pong" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -53,6 +62,25 @@
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="SCRIPT_NAME" value="" />
       <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="true" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="test_KarpathyNotTrained" type="PythonConfigurationType" factoryName="Python">
+      <module name="Pong" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="/usr/local/bin/python3.7" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/wimblepong" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/wimblepong/test_agent.py" />
+      <option name="PARAMETERS" value="&quot;$PROJECT_DIR$/wimblepong/test_agents/KarpathyNotTrained&quot;" />
       <option name="SHOW_COMMAND_LINE" value="true" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
@@ -79,6 +107,30 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="test_SomeOtherAgent" type="PythonConfigurationType" factoryName="Python">
+      <module name="Pong" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="/usr/local/bin/python3.7" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/wimblepong" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/wimblepong/test_agent.py" />
+      <option name="PARAMETERS" value="&quot;$PROJECT_DIR$/wimblepong/test_agents/SomeOtherAgent&quot;" />
+      <option name="SHOW_COMMAND_LINE" value="true" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <list>
+      <item itemvalue="Python.test_SomeAgent" />
+      <item itemvalue="Python.test_SomeOtherAgent" />
+      <item itemvalue="Python.test_KarpathyNotTrained" />
+    </list>
   </component>
   <component name="SvnConfiguration">
     <configuration />
@@ -91,7 +143,7 @@
       <option name="presentableId" value="Default" />
       <updated>1575042049757</updated>
       <workItem from="1575042050846" duration="343000" />
-      <workItem from="1575042642269" duration="499000" />
+      <workItem from="1575042642269" duration="3413000" />
     </task>
     <servers />
   </component>
