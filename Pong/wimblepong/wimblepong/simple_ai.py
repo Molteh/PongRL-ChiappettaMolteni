@@ -1,4 +1,4 @@
-from wimblepong import Wimblepong
+from wimblepong.wimblepong import Wimblepong
 import random
 
 
