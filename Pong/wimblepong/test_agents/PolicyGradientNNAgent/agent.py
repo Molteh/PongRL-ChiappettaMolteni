@@ -40,7 +40,8 @@ class Agent(object):
         discounted_r = np.zeros_like(r)
         running_add = 0
         for t in reversed(range(0, r.size)):
-            if r[t] != 0: running_add = 0  # reset the sum, since this was a game boundary (pong specific!)
+            if r[t] != 0:
+                running_add = 0  # reset the sum, since this was a game boundary (pong specific!)
             running_add = running_add * gamma + r[t]
             discounted_r[t] = running_add
         return np.array(discounted_r, dtype=np.float64)
@@ -75,7 +76,11 @@ class Agent(object):
         # Reset previous observation
         self.prev_x = None
 
-    def train(self, env, opponent, batch_size, learning_rate, gamma, decay_rate, render):
+    def train(self, env, opponent, batch_size, learning_rate, gamma, decay_rate, resume, render):
+        if resume:
+            self.load_model()
+            print("Resuming from previous model")
+
         grad_buffer = {k: np.zeros_like(v) for k, v in
                        self.model.items()}  # update buffers that add up gradients over a batch
         rmsprop_cache = {k: np.zeros_like(v) for k, v in self.model.items()}  # rmsprop memory
@@ -111,6 +116,7 @@ class Agent(object):
 
             # step the environment and get new measurements
             (obs1, obs2), (rew1, rew2), done, info = env.step((action1, action2))
+            rew1 = rew1/10  # Change rewards from +10/-10 to +1/-1
             reward_sum += rew1
 
             drs.append(rew1)  # record reward (has to be done after we call step() to get reward for previous action)
@@ -146,8 +152,7 @@ class Agent(object):
 
                 # boring book-keeping
                 running_reward = reward_sum if running_reward is None else running_reward * 0.99 + reward_sum * 0.01
-                print
-                'resetting env. episode reward total was %f. running mean: %f' % (reward_sum, running_reward)
+                print('Resetting env. episode reward total was {}. running mean: {}'.format(reward_sum, running_reward))
                 if episode_number % 100 == 0:
                     pickle.dump(self.model, open('save.p', 'wb'))
                 reward_sum = 0
