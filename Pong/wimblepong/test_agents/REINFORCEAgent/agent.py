@@ -23,7 +23,7 @@ class Agent(object):
         self.prev_x = None
         self.model = {}
         self.init_model()
-        self.name = "REINFORCE"
+        self.name = "REINFORCEAgent"
         self.rewards = []
         self.model_file = "save.p"
 
