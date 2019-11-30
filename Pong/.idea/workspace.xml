@@ -3,9 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="9daef7e8-63c0-47c2-89ae-9af13dd7d92f" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/wimblepong/save.p" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/wimblepong/test_agents/PolicyGradientNNAgent/agent.py" beforeDir="false" afterPath="$PROJECT_DIR$/wimblepong/test_agents/PolicyGradientNNAgent/agent.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/wimblepong/test_agents/PolicyGradientNNAgent/save.p" beforeDir="false" afterPath="$PROJECT_DIR$/wimblepong/test_agents/PolicyGradientNNAgent/save.p" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -54,7 +52,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.test_PolicyGradientNNAgent">
+  <component name="RunManager" selected="Python.train_PolicyGradientNNAgent">
     <configuration default="true" type="PythonConfigurationType" factoryName="Python">
       <module name="Pong" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -202,7 +200,7 @@
       <workItem from="1575042050846" duration="343000" />
       <workItem from="1575042642269" duration="9042000" />
       <workItem from="1575066095748" duration="1466000" />
-      <workItem from="1575107863542" duration="2957000" />
+      <workItem from="1575107863542" duration="3337000" />
     </task>
     <servers />
   </component>

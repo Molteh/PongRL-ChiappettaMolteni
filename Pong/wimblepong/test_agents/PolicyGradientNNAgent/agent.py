@@ -86,9 +86,7 @@ class Agent(object):
         running_reward = None
         reward_sum = 0
         episode_number = 0
-
-        self.load_model()
-
+        
         while episode_number < 30000:
             if render:
                 env.render()
