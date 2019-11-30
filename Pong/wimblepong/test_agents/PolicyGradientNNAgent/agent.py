@@ -87,8 +87,11 @@ class Agent(object):
         reward_sum = 0
         episode_number = 0
 
-        while True:
-            if render: env.render()
+        self.load_model()
+
+        while episode_number < 30000:
+            if render:
+                env.render()
 
             # preprocess the observation, set input to network to be difference image
             cur_x = prepro(obs1)
@@ -104,7 +107,7 @@ class Agent(object):
             # record various intermediates (needed later for backprop)
             xs.append(x)  # observation
             hs.append(h)  # hidden state
-            y = 1 if action1 == 2 else 0  # a "fake label"
+            y = 1 if action1 == 1 else 0  # a "fake label"
             dlogps.append(
                 y - aprob)  # grad that encourages the action that was taken to be taken (see http://cs231n.github.io/neural-networks-2/#losses if confused)
 
@@ -132,7 +135,8 @@ class Agent(object):
 
                 epdlogp *= discounted_epr  # modulate the gradient with advantage (PG magic happens right here.)
                 grad = self.policy_backward(epx, eph, epdlogp)
-                for k in self.model: grad_buffer[k] += grad[k]  # accumulate grad over batch
+                for k in self.model:
+                    grad_buffer[k] += grad[k]  # accumulate grad over batch
 
                 # perform rmsprop parameter update every batch_size episodes
                 if episode_number % batch_size == 0:
@@ -146,7 +150,8 @@ class Agent(object):
                 running_reward = reward_sum if running_reward is None else running_reward * 0.99 + reward_sum * 0.01
                 print
                 'resetting env. episode reward total was %f. running mean: %f' % (reward_sum, running_reward)
-                if episode_number % 100 == 0: pickle.dump(self.model, open('save.p', 'wb'))
+                if episode_number % 100 == 0:
+                    pickle.dump(self.model, open('save.p', 'wb'))
                 reward_sum = 0
                 obs1, obs2 = env.reset()  # reset env
                 prev_x = None
