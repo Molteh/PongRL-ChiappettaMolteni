@@ -22,7 +22,6 @@ import agent
 orig_wd = os.getcwd()
 os.chdir(args.dir1)
 agent1 = agent.Agent()
-agent1.load_model()
 os.chdir(orig_wd)
 del sys.path[0]
 
@@ -42,7 +41,16 @@ batch_size = 10  # every how many episodes to do a param update?
 learning_rate = 1e-3
 gamma = 0.99  # discount factor for reward
 decay_rate = 0.99  # decay factor for RMSProp leaky sum of grad^2
-resume = False  # resume from previous checkpoint?
+resume = True  # resume from previous checkpoint?
 render = False
+
+if resume:
+    sys.path.insert(0, args.dir1)
+    orig_wd = os.getcwd()
+    os.chdir(args.dir1)
+    agent1.load_model()
+    print("Resuming from previous model")
+    os.chdir(orig_wd)
+    del sys.path[0]
 
 agent1.train(env, agent2, batch_size, learning_rate, gamma, decay_rate, resume, render)
