@@ -79,7 +79,7 @@ class Agent(object):
         # Reset previous observation
         self.prev_x = None
 
-    def train(self, env, opponent, batch_size, learning_rate, gamma, decay_rate, resume, render):
+    def train(self, env, opponent, batch_size, learning_rate, gamma, decay_rate, render):
         grad_buffer = {k: np.zeros_like(v) for k, v in
                        self.model.items()}  # update buffers that add up gradients over a batch
         rmsprop_cache = {k: np.zeros_like(v) for k, v in self.model.items()}  # rmsprop memory
