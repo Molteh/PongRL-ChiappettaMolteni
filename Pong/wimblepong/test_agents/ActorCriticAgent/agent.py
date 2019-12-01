@@ -25,7 +25,7 @@ class Agent(object):
         self.model = {}
         self.model_target = {}
         self.init_model()
-        self.name = "REINFORCEAgent"
+        self.name = "ActorCriticAgent"
         self.rewards = []
         self.model_file = "save.ac"
 
@@ -84,7 +84,7 @@ class Agent(object):
         self.prev_x = cur_x
 
         # forward the policy network and sample an action from the returned probability
-        aprob, _ = self.policy_forward(x, self.model)
+        aprob, _ = self.policy_forward(x, 'policy', self.model)
         action = 1 if np.random.uniform() < aprob else 2  # roll the dice!
         return action
 
