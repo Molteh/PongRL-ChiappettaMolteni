@@ -4,10 +4,15 @@ import numpy as np
 from matplotlib import pyplot as plt
 from itertools import count
 import torch
+import logging
+import sys
+import os
 
-#from utils import plot_rewards
-from test_agents.DQNAgent.agent import Agent as DQNAgent
+from test_agents.DQNAgent.agent_train import Agent as DQNAgent
 
+# set up logging
+logging.basicConfig(level=logging.INFO, filename='dqn.log', filemode='w', format='%(name)s - %(levelname)s - %(message)s')
+logging.info("log file for DQN agent training")
 
 # Make the environment
 env = gym.make("WimblepongVisualSimpleAI-v0")
@@ -20,6 +25,11 @@ gamma = 0.95
 replay_buffer_size = 50000
 batch_size = 128
 
+###
+wins = 0
+
+###
+resume = True # resume from previous checkpoint?
 
 # Get number of actions from gym action space
 n_actions = env.action_space.n
@@ -29,6 +39,18 @@ state_space_dim = env.observation_space.shape
 # Task 4 - DQN
 agent = DQNAgent(state_space_dim, n_actions, replay_buffer_size, batch_size,
                hidden, gamma)
+
+if resume:
+    dir = "/Users/molte/Desktop/Aalto/Reinforcement learning/Project/PongRL-ChiappettaMolteni/Pong/wimblepong/test_agents/DQNAgent"
+    sys.path.insert(0, dir)
+    orig_wd = os.getcwd()
+    os.chdir(dir)
+    agent.load_model()
+    print("Resuming from previous model")
+    logging.info("Resuming from previous model")
+    os.chdir(orig_wd)
+    del sys.path[0]
+
 
 # Training loop
 cumulative_rewards = []
@@ -60,27 +82,29 @@ for ep in range(num_episodes):
         # Move to the next state
         state = next_state
 
+        if done:
+            if reward > 0:
+                wins += 1
+
         i += 1
     cumulative_rewards.append(cum_reward)
     #plot_rewards(cumulative_rewards)
-    print("Episode lasted for: ", i, " time steps")
+    logging.info("Episode lasted for %i time steps", i)
 
     # Update the target network, copying all weights and biases in DQN
     # Uncomment for Task 4
     if ep % TARGET_UPDATE == 0:
-         agent.update_target_network()
+        agent.update_target_network()
 
     if ep % 10 == 0:
-        print("trained for: ", ep, " episodes")
+        logging.info("trained for: %s episodes", ep)
+        logging.info("victory rate: %r", wins/(ep+1))
 
     # Save the policy
     # Uncomment for Task 4
     if ep % 1000 == 0:
+        logging.info("saving model at ep: %s", ep)
         torch.save(agent.policy_net.state_dict(), "weights_%s_%d.mdl" % ("DQN", ep))
 
 print('Complete')
-#plt.ioff()
-#plt.show()
-
-# Task 3 - plot the policy
 

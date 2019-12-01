@@ -159,7 +159,7 @@ class Agent(object):
 
     def load_model(self):
         weights = torch.load("model.mdl", map_location=torch.device("cpu"))
-        self.policy_net.load_state_dict(weights, strict=False)
+        self.policy_net.load_state_dict(weights, strict=False)  # ????
 
     def reset(self):
         self.prev_obs = None
@@ -182,10 +182,9 @@ class Agent(object):
 
         return self.phi_map(img_list)
 
-    def get_action(self, observation, epsilon=0):
+    def get_action(self, observation, epsilon):
 
-        #x = observation
-        x = self.preprocess(observation)
+        x = observation
 
         sample = random.random()
         if sample > epsilon:
