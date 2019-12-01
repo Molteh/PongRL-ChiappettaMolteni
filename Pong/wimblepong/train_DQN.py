@@ -7,8 +7,18 @@ import torch
 import logging
 import sys
 import os
+import argparse
 
 from test_agents.DQNAgent.agent_train import Agent as DQNAgent
+
+parser = argparse.ArgumentParser()
+parser.add_argument("dir1", type=str, help="Directory to agent 1 to be trained.")
+parser.add_argument("dir2", type=str, default=None, nargs="?",
+                    help="Directory to agent 2 to be used as opponent in agent 1 training. If empty, SimpleAI is used instead.")
+parser.add_argument("--render", "-r", action="store_true", help="Render the competition.")
+parser.add_argument("--games", "-g", type=int, default=100, help="number of games.")
+
+args = parser.parse_args()
 
 # set up logging
 logging.basicConfig(level=logging.INFO, filename='dqn.log', filemode='w', format='%(name)s - %(levelname)s - %(message)s')
@@ -29,7 +39,7 @@ batch_size = 128
 wins = 0
 
 ###
-resume = True # resume from previous checkpoint?
+resume = True  # resume from previous checkpoint?
 
 # Get number of actions from gym action space
 n_actions = env.action_space.n
@@ -41,10 +51,9 @@ agent = DQNAgent(state_space_dim, n_actions, replay_buffer_size, batch_size,
                hidden, gamma)
 
 if resume:
-    dir = "/Users/molte/Desktop/Aalto/Reinforcement learning/Project/PongRL-ChiappettaMolteni/Pong/wimblepong/test_agents/DQNAgent"
-    sys.path.insert(0, dir)
+    sys.path.insert(0, args.dir1)
     orig_wd = os.getcwd()
-    os.chdir(dir)
+    os.chdir(args.dir1)
     agent.load_model()
     print("Resuming from previous model")
     logging.info("Resuming from previous model")

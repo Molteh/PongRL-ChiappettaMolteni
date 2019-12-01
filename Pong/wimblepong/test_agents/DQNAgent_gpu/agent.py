@@ -95,7 +95,7 @@ class Agent(object):
         self.batch_size = batch_size
         self.gamma = gamma
         self.prev_obs = None
-        self.train_device = "cpu"
+        self.train_device = "cuda"
 
     def update_network(self, updates=1):
         for _ in range(updates):
@@ -158,8 +158,8 @@ class Agent(object):
         self.memory.push(state, action, next_state, reward, done)
 
     def load_model(self):
-        weights = torch.load("model.mdl", map_location=torch.device("cpu"))
-        self.policy_net.load_state_dict(weights, strict=False)  # ????
+        weights = torch.load("model.mdl")
+        self.policy_net.load_state_dict(weights, strict=False)
 
     def reset(self):
         self.prev_obs = None
@@ -182,9 +182,10 @@ class Agent(object):
 
         return self.phi_map(img_list)
 
-    def get_action(self, observation, epsilon):
+    def get_action(self, observation, epsilon=0):
 
-        x = observation
+        #x = observation
+        x = self.preprocess(observation)
 
         sample = random.random()
         if sample > epsilon:

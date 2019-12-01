@@ -95,7 +95,7 @@ class Agent(object):
         self.batch_size = batch_size
         self.gamma = gamma
         self.prev_obs = None
-        self.train_device = "cuda"
+        self.train_device = "cpu"
 
     def update_network(self, updates=1):
         for _ in range(updates):
