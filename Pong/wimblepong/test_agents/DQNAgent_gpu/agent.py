@@ -158,7 +158,7 @@ class Agent(object):
         self.memory.push(state, action, next_state, reward, done)
 
     def load_model(self):
-        weights = torch.load("model.mdl")
+        weights = torch.load("model.mdl", map_location=torch.device("cpu"))
         self.policy_net.load_state_dict(weights, strict=False)  # ????
 
     def reset(self):
