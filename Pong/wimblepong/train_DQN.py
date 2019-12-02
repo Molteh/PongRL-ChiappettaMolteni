@@ -9,7 +9,7 @@ import sys
 import os
 import argparse
 
-from test_agents.DQNAgent.agent_train import Agent as DQNAgent
+from test_agents.DQNAgent.agent_train_with_history import Agent as DQNAgent
 
 parser = argparse.ArgumentParser()
 parser.add_argument("dir1", type=str, help="Directory to agent 1 to be trained.")
