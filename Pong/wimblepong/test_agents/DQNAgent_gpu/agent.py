@@ -7,6 +7,7 @@ from collections import namedtuple
 import PIL.Image
 import torch
 
+
 Transition = namedtuple('Transition',
                         ('state', 'action', 'next_state', 'reward', 'done'))
 
@@ -84,8 +85,6 @@ class Agent(object):
                  batch_size=32, hidden_size=12, gamma=0.98):
         self.n_actions = n_actions
         self.state_space_dim = state_space
-        self.h = 200
-        self.w = 200
         self.policy_net = DQN()
         self.target_net = DQN()
         self.target_net.load_state_dict(self.policy_net.state_dict())

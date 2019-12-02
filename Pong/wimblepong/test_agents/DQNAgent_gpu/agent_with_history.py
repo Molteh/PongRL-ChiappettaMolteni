@@ -7,8 +7,29 @@ from collections import namedtuple
 import PIL.Image
 import torch
 
+
 Transition = namedtuple('Transition',
                         ('state', 'action', 'next_state', 'reward', 'done'))
+
+
+class History(object):
+    def __init__(self, size):
+        self.size = size
+        self.frames = []
+
+    def get(self):
+        return self.frames
+
+    def put(self, frame):
+        if len(self.frames) == self.size:
+            self.frames.pop(0)
+            self.frames.append(frame)
+        else:
+            self.frames = [frame] * self.size
+
+    def empty(self):
+        self.frames = []
+
 
 
 class ReplayMemory(object):
@@ -37,7 +58,7 @@ class DQN(nn.Module):
 
         # Layers
         self.conv1 = nn.Conv2d(
-            in_channels=2,
+            in_channels=4,
             out_channels=16,
             kernel_size=8,
             stride=4,
@@ -80,7 +101,7 @@ class DQN(nn.Module):
 
 
 class Agent(object):
-    def __init__(self, state_space, n_actions, replay_buffer_size=50000,
+    def __init__(self, state_space, n_actions, replay_buffer_size=100000,
                  batch_size=32, hidden_size=12, gamma=0.98):
         self.n_actions = n_actions
         self.state_space_dim = state_space
@@ -93,6 +114,7 @@ class Agent(object):
         self.batch_size = batch_size
         self.gamma = gamma
         self.prev_obs = None
+        self.history = History(4)
         self.train_device = "cuda"
 
     def update_network(self, updates=1):
@@ -157,10 +179,11 @@ class Agent(object):
 
     def load_model(self):
         weights = torch.load("model.mdl")
-        self.policy_net.load_state_dict(weights, strict=False)  # ????
+        self.policy_net.load_state_dict(weights, strict=False)
 
     def reset(self):
         self.prev_obs = None
+        self.history.empty()
 
     def preprocess(self, observation):
         """observation = observation[::2, ::2].mean(axis=-1)
@@ -171,18 +194,26 @@ class Agent(object):
         #stack_ob = torch.from_numpy(stack_ob).float().unsqueeze(0)
         #stack_ob = stack_ob.transpose(1, 3)
         """
+        # ADD obs to history
+        self.history.put(observation)
 
         if self.prev_obs is None:
             self.prev_obs = observation
 
-        img_list = [observation, self.prev_obs]
+        # img_list = [observation, self.prev_obs]
+
+        #####
+        img_list = self.history.get()
+        #####
+
         self.prev_obs = observation
 
         return self.phi_map(img_list)
 
-    def get_action(self, observation, epsilon):
+    def get_action(self, observation, epsilon=0):
 
-        x = observation
+        #x = observation
+        x = self.preprocess(observation)
 
         sample = random.random()
         if sample > epsilon:
