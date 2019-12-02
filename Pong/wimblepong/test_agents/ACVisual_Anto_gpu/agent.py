@@ -57,7 +57,7 @@ class Agent(object):
                 opponent_action = opponent.get_action(opponent_obs)
 
                 # Perform the action on the environment, get new state and reward
-                (observation, opponent_obs), (reward, opponent_rew), done, info = env.step((action.detach().numpy(), opponent_action))
+                (observation, opponent_obs), (reward, opponent_rew), done, info = env.step((action.detach().cpu().numpy(), opponent_action))
 
                 # Store action's outcome (so that the agent can improve its policy)
                 self.store_outcome(reward)

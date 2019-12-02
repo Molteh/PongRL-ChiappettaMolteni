@@ -10,7 +10,7 @@ class DQNSoftmax(nn.Module):
     self.conv2 = nn.Conv2d(16, 32, kernel_size=4, stride=2)
     self.fc = nn.Linear(8096, 256)
     self.head = nn.Linear(256, output_size)
-    self.softmax = nn.Softmax()
+    self.softmax = nn.Softmax(dim=1)
 
   def forward(self, x):
     out = F.relu((self.conv1(x)))

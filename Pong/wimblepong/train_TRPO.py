@@ -9,7 +9,7 @@ import sys
 import os
 
 from test_agents.TRPOAgent.models import DQNRegressor, DQNSoftmax
-from test_agents.TRPOAgent.trpo_agent import TRPOAgent
+from test_agents.TRPOAgent.agent import Agent
 
 from wimblepong.simple_ai import SimpleAi
 
@@ -26,7 +26,7 @@ def main(env, opponent):
         print('score', reward, t)
         log_value('score', reward, t)
         if t % 100 == 0:
-            torch.save(policy_model.state_dict(), "trpo_model.mdl")
+            torch.save(policy_model.state_dict(), "model.mdl")
 
 
 if __name__ == "__main__":
