@@ -1,9 +1,8 @@
 import torch
-from utils import discount_rewards
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from pong.models import Policy
+from test_agents.AC_Anto.models import Policy
 
 class Agent(object):
     def __init__(self):
@@ -11,19 +10,21 @@ class Agent(object):
         self.policy = None
         self.optimizer = None
         self.gamma = 0.98
-        self.variance = self.policy.sigma
         self.states = []
         self.action_probs = []
         self.rewards = []
         self.values = []
         self.prev_obs = None
-        self.policy.eval()
 
-    def train(self, env, opponent, print_things=True, train_run_id=0, train_episodes=5000):
+    def train(self, env, opponent, resume=False, print_things=True, train_run_id=0, train_episodes=20000):
 
         # TODO: Set policy network and optimizer according to environment dimensionalities
-        self.policy = Policy(env.observation_space.shape[-1], env.action_space.shape[-1]).to(self.train_device)
+        if not resume:
+            obs_space_dim = env.observation_space.shape[-1]
+            act_space_dim = env.action_space.n
+            self.policy = Policy(obs_space_dim, act_space_dim).to(self.train_device)
         self.optimizer = torch.optim.RMSprop(self.policy.parameters(), lr=5e-3)
+        self.policy.eval()
 
         # TODO: Set arrays to keep track of rewards and then plot them
         reward_history, timestep_history = [], []
@@ -40,8 +41,7 @@ class Agent(object):
             # Loop until the episode is over
             while not done:
                 # Get action from the agent and store state - action prob - value
-                action, action_probabilities = self.get_action(observation)
-                previous_observation = observation
+                action, action_probabilities = self.get_action_train(observation)
 
                 # Get action from opponent
                 opponent_action = opponent.get_action(opponent_obs)
@@ -50,7 +50,7 @@ class Agent(object):
                 (observation, opponent_obs), (reward, opponent_rew), done, info = env.step((action.detach().numpy(), opponent_action))
 
                 # Store action's outcome (so that the agent can improve its policy)
-                agent.store_outcome(reward)
+                self.store_outcome(reward)
 
                 # Store total episode reward
                 reward_sum += reward
@@ -70,7 +70,7 @@ class Agent(object):
             average_reward_history.append(avg)
 
             # MC policy gradient update at the end of the episode
-            agent.episode_finished(episode_number)
+            self.episode_finished(episode_number)
 
         # Training is finished - plot rewards
         if print_things:
@@ -84,22 +84,23 @@ class Agent(object):
                              "train_run_id": [train_run_id] * len(reward_history),
                              "ActorCritic": ["PG"] * len(reward_history),
                              "reward": reward_history})
-        torch.save(agent.policy.state_dict(), "model_{}.mdl".format(train_run_id))
+        torch.save(self.policy.state_dict(), "model_no_vis_{}.mdl".format(train_run_id))
         return data
 
-    def get_action(self, observation, evaluation=False):
+    def get_action(self, observation):
+        action, action_prob = self.get_action_train(observation)
+        return action
+
+    def get_action_train(self, observation):
 
         # TODO: Create observation tensor
         x = torch.from_numpy(observation).float().to(self.train_device)
 
         # TODO: Forward state through the policy network -> Actor provides policy actions dist, Critic provides state value prediction
-        dist, value = self.policy.forward(x, self.variance)
+        dist, value = self.policy.forward(x)
 
-        # TODO: Return mean if evaluation, else sample from the distribution returned by the policy
-        if evaluation:
-            action = dist.mean
-        else:
-            action = dist.sample((1,))[0]
+        # TODO: Return action with highest probability
+        action = torch.argmax(dist.probs)
 
         # TODO: Calculate the log probability of the action
         act_log_prob = dist.log_prob(action)
@@ -109,7 +110,7 @@ class Agent(object):
         self.action_probs.append(act_log_prob)
         self.values.append(value)
 
-        return action
+        return action, act_log_prob
 
     def reset(self):
         self.prev_obs = None
@@ -118,6 +119,7 @@ class Agent(object):
         return "GIORGIA"
 
     def load_model(self):
+        self.policy = Policy(6, 3).to(self.train_device)
         weights = torch.load("model.mdl", map_location=torch.device("cpu"))
         self.policy.load_state_dict(weights, strict=False)
 
@@ -133,7 +135,7 @@ class Agent(object):
         self.states, self.action_probs, self.rewards, self.values = [], [], [], []
 
         # TODO: Compute discounted rewards and normalize
-        rewards = discount_rewards(rewards, gamma=self.gamma)
+        rewards = self.discount_rewards(rewards, gamma=self.gamma)
         rewards = (rewards - torch.mean(rewards))/torch.std(rewards)
 
         # TODO: Compute advantages
@@ -154,3 +156,11 @@ class Agent(object):
 
     def store_outcome(self, reward):
         self.rewards.append(torch.Tensor([reward]))
+
+    def discount_rewards(self, r, gamma):
+        discounted_r = torch.zeros_like(r)
+        running_add = 0
+        for t in reversed(range(0, r.size(-1))):
+            running_add = running_add * gamma + r[t]
+            discounted_r[t] = running_add
+        return discounted_r

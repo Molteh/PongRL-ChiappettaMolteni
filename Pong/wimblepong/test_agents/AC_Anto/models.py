@@ -12,7 +12,6 @@ class Policy(torch.nn.Module):
         self.fc1_critic = torch.nn.Linear(state_space, self.hidden)
         self.fc2_mean = torch.nn.Linear(self.hidden, action_space)
         self.fc2_value = torch.nn.Linear(self.hidden, 1)
-        self.sigma = torch.nn.Parameter(torch.tensor([10.]))  # Learn variance as a parameter of the network
         self.init_weights()
 
     def init_weights(self):
@@ -21,15 +20,14 @@ class Policy(torch.nn.Module):
                 torch.nn.init.normal_(m.weight)
                 torch.nn.init.zeros_(m.bias)
 
-    def forward(self, x, variance):
+    def forward(self, x):
 
         # TODO: Actor
-        x = self.fc1_actor(x)
-        x = F.relu(x)
-        x_mean = self.fc2_mean(x)
-        dist = Normal(x_mean, torch.sqrt(variance)) # TODO: Normal dist
-        # x_probs = F.softmax(x_mean, dim=-1)  # TODO: Soft-max distibution
-        # dist = Categorical(x_probs)
+        x_ac = self.fc1_actor(x)
+        x_ac = F.relu(x_ac)
+        x_mean = self.fc2_mean(x_ac)
+        x_probs = F.softmax(x_mean, dim=-1)
+        dist = Categorical(x_probs)
 
         # TODO: Critic
         x_cr = self.fc1_critic(x)
