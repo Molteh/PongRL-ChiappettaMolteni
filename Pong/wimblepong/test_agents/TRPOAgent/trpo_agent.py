@@ -16,13 +16,13 @@ class TRPOAgent:
                  value_function_model,
                  value_function_lr=1,
                  gamma=0.98,
-                 episodes=10,
+                 episodes=40,
                  max_kl=0.001,
                  cg_damping=0.001,
                  cg_iters=10,
                  residual_tol=1e-10,
                  ent_coeff=0.00,
-                 batch_size=64):
+                 batch_size=8192):
         """
     Instantiate a TRPO agent
 
@@ -124,7 +124,8 @@ class TRPOAgent:
                 agent_action = Variable(action).data.cpu().numpy()[0][0]
                 opponent_action = self.opponent.get_action(opponent_obs)
 
-                (observation, opponent_obs), (reward, opponent_rew), done, _ = self.env.step((agent_action, opponent_action))
+                (observation, opponent_obs), (reward, opponent_rew), done, _ = self.env.step(
+                    (agent_action, opponent_action))
                 rewards.append(reward)
 
                 if done:

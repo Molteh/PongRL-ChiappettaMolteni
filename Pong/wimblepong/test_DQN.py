@@ -21,7 +21,7 @@ n_actions = env.action_space.n
 state_space_dim = env.observation_space.shape
 
 sys.path.insert(0, args.dir1)
-import agent
+import agent_with_history as agent
 orig_wd = os.getcwd()
 os.chdir(args.dir1)
 agent1 = agent.Agent(state_space_dim, n_actions)
