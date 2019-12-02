@@ -5,6 +5,7 @@ import gym
 import os
 from PIL import Image, ImageDraw, ImageFont
 import matplotlib
+from matplotlib import font_manager
 import cv2
 
 

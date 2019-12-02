@@ -6,9 +6,9 @@ class DQNSoftmax(nn.Module):
   def __init__(self, output_size):
     super(DQNSoftmax, self).__init__()
 
-    self.conv1 = nn.Conv2d(1, 16, kernel_size=8, stride=4)
+    self.conv1 = nn.Conv2d(2, 16, kernel_size=8, stride=4)
     self.conv2 = nn.Conv2d(16, 32, kernel_size=4, stride=2)
-    self.fc = nn.Linear(2592, 256)
+    self.fc = nn.Linear(8096, 256)
     self.head = nn.Linear(256, output_size)
     self.softmax = nn.Softmax()
 
@@ -24,9 +24,9 @@ class DQNRegressor(nn.Module):
   def __init__(self):
     super(DQNRegressor, self).__init__()
 
-    self.conv1 = nn.Conv2d(1, 16, kernel_size=8, stride=4)
+    self.conv1 = nn.Conv2d(2, 16, kernel_size=8, stride=4)
     self.conv2 = nn.Conv2d(16, 32, kernel_size=4, stride=2)
-    self.fc = nn.Linear(2592, 256)
+    self.fc = nn.Linear(8096, 256)
     self.head = nn.Linear(256, 1)
 
   def forward(self, x):

@@ -39,7 +39,7 @@ batch_size = 128
 wins = 0
 
 ###
-resume = True  # resume from previous checkpoint?
+resume = False  # resume from previous checkpoint?
 
 # Get number of actions from gym action space
 n_actions = env.action_space.n
