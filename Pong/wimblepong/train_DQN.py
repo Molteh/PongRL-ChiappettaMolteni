@@ -32,7 +32,7 @@ glie_a = 5000
 num_episodes = 15000
 hidden = 64
 gamma = 0.95
-replay_buffer_size = 50000
+replay_buffer_size = 100000
 batch_size = 128
 
 ###
