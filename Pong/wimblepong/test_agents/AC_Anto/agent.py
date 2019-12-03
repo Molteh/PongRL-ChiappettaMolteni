@@ -16,7 +16,7 @@ class Agent(object):
         self.values = []
         self.prev_obs = None
 
-    def train(self, env, opponent, resume=False, print_things=True, train_run_id=1, train_episodes=100000):
+    def train(self, env, opponent, resume=False, print_things=True, train_run_id=280, train_episodes=100000):
 
         # TODO: Set policy network and optimizer according to environment dimensionalities
         if not resume:

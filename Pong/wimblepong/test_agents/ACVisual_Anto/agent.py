@@ -19,6 +19,9 @@ class Agent(object):
     def preprocess(self, observation):
         observation = observation[::2, ::2].mean(axis=-1)
         observation = np.expand_dims(observation, axis=-1)
+        observation = observation[35:175]  # crop - remove 35px from start & 25px from end of image in x, to reduce redundant parts of image (i.e. after ball passes paddle)
+        observation[observation == 43] = 0  # erase background (background type 1)
+        observation[observation != 0] = 1  # everything else (paddles, ball) just set to 1
         if self.prev_obs is None:
             self.prev_obs = observation
         stack_ob = np.concatenate((self.prev_obs, observation), axis=-1)
@@ -27,13 +30,13 @@ class Agent(object):
         self.prev_obs = observation
         return stack_ob
 
-    def train(self, env, opponent, resume=False, print_things=True, train_run_id=0, train_episodes=20000):
+    def train(self, env, opponent, resume=False, print_things=True, train_run_id=20, train_episodes=20000):
 
         # TODO: Set policy network and optimizer according to environment dimensionalities
         if not resume:
             act_space_dim = env.action_space.n
             self.policy = Policy(act_space_dim).to(self.train_device)
-        self.optimizer = torch.optim.RMSprop(self.policy.parameters(), lr=5e-3)
+        self.optimizer = torch.optim.RMSprop(self.policy.parameters(), lr=5e-4)
         self.policy.eval()
 
         # TODO: Set arrays to keep track of rewards and then plot them

@@ -6,9 +6,9 @@ def sigmoid(x):
 
 
 def prepro(I):
-    #  """ prepro 200x235x3 uint8 frame into 10000 (100x100) 1D float vector """
-    """ prepro 200x235x3 uint8 frame into 8300 (83x100) 1D float vector """
-    I = I[35:200]  # crop - remove 35px from start & 35px from end of image in x, to reduce redundant parts of image (i.e. after ball passes paddle)
+    #  """ prepro 200x200x3 uint8 frame into 10000 (100x100) 1D float vector """
+    """ prepro 200x200x3 uint8 frame into 8300 (83x100) 1D float vector """
+    I = I[35:175]  # crop - remove 35px from start & 25px from end of image in x, to reduce redundant parts of image (i.e. after ball passes paddle)
     I = I[::2,::2,0] # downsample by factor of 2
     I[I == 43] = 0 # erase background (background type 1)
     I[I != 0] = 1 # everything else (paddles, ball) just set to 1

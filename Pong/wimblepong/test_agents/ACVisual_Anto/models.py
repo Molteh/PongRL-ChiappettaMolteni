@@ -10,7 +10,7 @@ class Policy(torch.nn.Module):
         self.conv1 = torch.nn.Conv2d(2, 32, 3, 2)
         self.conv2 = torch.nn.Conv2d(32, 64, 3, 2)
         self.conv3 = torch.nn.Conv2d(64, 128, 3, 2)
-        self.reshaped_size = 128*11*11
+        self.reshaped_size = 9856
         self.fc1_actor = torch.nn.Linear(self.reshaped_size, self.hidden)
         self.fc1_critic = torch.nn.Linear(self.reshaped_size, self.hidden)
         self.fc2_mean = torch.nn.Linear(self.hidden, action_space)
