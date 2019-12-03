@@ -12,19 +12,21 @@ class Agent(object):
         self.gamma = 0.98
         self.states = []
         self.action_probs = []
+        self.entropies = []
         self.rewards = []
         self.values = []
         self.prev_obs = None
 
-    def train(self, env, opponent, resume=False, print_things=True, train_run_id=280, train_episodes=100000):
+    def train(self, env, opponent, resume=False, print_things=True, train_run_id=285, train_episodes=100000):
 
         # TODO: Set policy network and optimizer according to environment dimensionalities
         if not resume:
             obs_space_dim = env.observation_space.shape[-1]
             act_space_dim = env.action_space.n
             self.policy = Policy(obs_space_dim, act_space_dim).to(self.train_device)
-        self.optimizer = torch.optim.RMSprop(self.policy.parameters(), lr=5e-4)
-        self.policy.eval()
+            self.optimizer = torch.optim.RMSprop(self.policy.parameters(), lr=5e-4)
+
+        self.policy.train()
 
         # TODO: Set arrays to keep track of rewards and then plot them
         reward_history, timestep_history = [], []
@@ -80,12 +82,9 @@ class Agent(object):
             plt.title("Reward history")
             plt.show()
             print("Training finished.")
-        data = pd.DataFrame({"episode": np.arange(len(reward_history)),
-                             "train_run_id": [train_run_id] * len(reward_history),
-                             "ActorCritic": ["PG"] * len(reward_history),
-                             "reward": reward_history})
-        torch.save(self.policy.state_dict(), "model_no_vis_{}.mdl".format(train_run_id))
-        return data
+
+        torch.save(self.policy.state_dict(), "model_100actor50critic1entropy.mdl")
+        torch.save(self.optimizer.state_dict(), "opt_model_100actor50critic1entropy.mdl")
 
     def get_action(self, observation):
         action, action_prob = self.get_action_train(observation)
@@ -99,7 +98,7 @@ class Agent(object):
         # TODO: Forward state through the policy network -> Actor provides policy actions dist, Critic provides state value prediction
         dist, value = self.policy.forward(x)
 
-        # TODO: Return action with highest probability
+        # TODO: Sample action from probability distribution
         action = torch.argmax(dist.probs)
 
         # TODO: Calculate the log probability of the action
@@ -108,6 +107,7 @@ class Agent(object):
         # TODO: Save state - action prob - value
         self.states.append(observation)
         self.action_probs.append(act_log_prob)
+        self.entropies.append(dist.entropy())
         self.values.append(value)
 
         return action, act_log_prob
@@ -122,17 +122,22 @@ class Agent(object):
         self.policy = Policy(6, 3).to(self.train_device)
         weights = torch.load("model.mdl", map_location=torch.device("cpu"))
         self.policy.load_state_dict(weights, strict=False)
+        self.optimizer = torch.optim.RMSprop(self.policy.parameters(), lr=5e-4)
+        opt_weights = torch.load("opt_model.mdl", map_location=torch.device("cpu"))
+        self.optimizer.load_state_dict(opt_weights)
+        self.policy.eval()
 
     def episode_finished(self, episode_number):
 
         # TODO: Stack action_probs, rewards and values arrays
         action_probs = torch.stack(self.action_probs, dim=0) \
                 .to(self.train_device).squeeze(-1)
+        entropies = torch.stack(self.entropies, dim=0).to(self.train_device).squeeze(-1)
         rewards = torch.stack(self.rewards, dim=0).to(self.train_device).squeeze(-1)
         values = torch.stack(self.values, dim=0).to(self.train_device).squeeze(-1)
 
         # TODO: Reset values for next episode
-        self.states, self.action_probs, self.rewards, self.values = [], [], [], []
+        self.states, self.action_probs, self.entropies, self.rewards, self.values = [], [], [], [], []
 
         # TODO: Compute discounted rewards and normalize
         rewards = self.discount_rewards(rewards, gamma=self.gamma)
@@ -145,7 +150,8 @@ class Agent(object):
         loss = torch.sum(-action_probs * advantages.detach())
         actor_loss = loss.mean()
         critic_loss = advantages.pow(2).mean()
-        actor_critic_loss = actor_loss + critic_loss
+        entropy_loss = entropies.mean()
+        actor_critic_loss = actor_loss + 0.50 * critic_loss + 0.01 * entropy_loss
 
         # TODO: Compute the gradients of loss w.r.t. network parameters
         actor_critic_loss.backward()
