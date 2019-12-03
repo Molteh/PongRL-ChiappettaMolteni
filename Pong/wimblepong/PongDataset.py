@@ -19,12 +19,13 @@ class PongDataset(Dataset):
         return len(self.pong_frames)
 
     def __getitem__(self, idx):
+        #print("idx 1: ", idx)
         if torch.is_tensor(idx):
             idx = idx.tolist()
-
-        y = self.pong_frames[:][1:2]
-        frame = self.pong_frames[:][0]
+        #print("idx 2: ", idx)
+        y = self.pong_frames[idx][2]
+        frame = self.pong_frames[idx][0]
         #frame = frame.astype('float').reshape(-1, 3)
-        sample = (y, frame)
+        sample = (frame, y)
 
         return sample

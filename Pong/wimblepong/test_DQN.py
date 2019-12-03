@@ -22,24 +22,34 @@ state_space_dim = env.observation_space.shape
 
 sys.path.insert(0, args.dir1)
 import agent_with_history as agent
-orig_wd = os.getcwd()
-os.chdir(args.dir1)
-agent1 = agent.Agent(state_space_dim, n_actions)
-agent1.load_model()
-os.chdir(orig_wd)
-del sys.path[0]
 
-if args.dir2:
-    sys.path.insert(0, args.dir2)
-    importlib.reload(agent)
-    os.chdir(args.dir2)
-    agent2 = agent.Agent()
-    agent2.load_model()
-    os.chdir(orig_wd)
-    del sys.path[0]
-else:
-    agent2 = None
 
-testbench = PongTestbench(args.render)
-testbench.init_players(agent1, agent2)
-testbench.run_test(args.games)
+for weights in ["1000", "2000", "3000", "4000", "5000"]:
+    win_tot1 = 0
+    win_tot2 = 0
+    for _ in range(10):
+
+        orig_wd = os.getcwd()
+        os.chdir(args.dir1)
+        agent1 = agent.Agent(state_space_dim, n_actions)
+        agent1.load_model("weights_DQN_"+weights)
+        os.chdir(orig_wd)
+        #del sys.path[0]
+
+        if args.dir2:
+            sys.path.insert(0, args.dir2)
+            importlib.reload(agent)
+            os.chdir(args.dir2)
+            agent2 = agent.Agent()
+            agent2.load_model()
+            os.chdir(orig_wd)
+            del sys.path[0]
+        else:
+            agent2 = None
+
+        testbench = PongTestbench(args.render)
+        testbench.init_players(agent1, agent2)
+        wins1, wins2 = testbench.run_test(args.games)
+        win_tot1 += wins1
+        win_tot2 += wins2
+    print("Average victory rate: ", win_tot1 / (win_tot1+win_tot2), " of: ", weights)

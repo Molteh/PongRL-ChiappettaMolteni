@@ -16,7 +16,7 @@ class PongNN(torch.nn.Module):
         self.fc2 = torch.nn.Linear(256, 64)
 
         # 64 input features, 2 output features for our 10 defined classes
-        self.fc3 = torch.nn.Linear(64, 2)
+        self.fc3 = torch.nn.Linear(64, 1)
 
     def forward(self, x):
 
