@@ -1,9 +1,10 @@
-from wimblepong.Pong_NNv2 import PongNN as PNN
+from Pong_NN import PongNN as PNN
 import numpy as np
 import random
 import torch
 
-class SimpleAi(object):
+
+class NNAgent(object):
     def __init__(self):
         self.name = "NNAgent"
         self.NNX = PNN()
@@ -45,6 +46,13 @@ class SimpleAi(object):
 
         observation = self.preprocess(observation)
 
+        observation = torch.tensor(observation)
+
+        # Wrap them in a Variable object
+        #observation = Variable(observation)
+
+        observation = observation.float()
+
         # get myY
         my_y = self.NNmyY(observation)
 
@@ -53,6 +61,10 @@ class SimpleAi(object):
 
         # get noisy x
         x = self.NNX(observation)
+
+        my_y = my_y.detach().numpy()
+        x = x.detach().numpy()
+        y = y.detach().numpy()
 
         # Get the ball position in the game arena
         ball_y = y + (random.random()*np.log(x)-np.log(x/2))
