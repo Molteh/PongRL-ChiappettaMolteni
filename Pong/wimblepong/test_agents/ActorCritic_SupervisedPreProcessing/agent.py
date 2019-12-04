@@ -175,8 +175,6 @@ class Agent(object):
 
     def _get_action_train(self, observation, evaluation=False):
 
-        observation = observation["obs"]
-
         # TODO: Preprocess observation to use only vertical positions
         processed_observation = np.array((observation[0], observation[1], observation[3], observation[5]))
 
