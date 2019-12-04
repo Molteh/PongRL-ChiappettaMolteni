@@ -4,14 +4,14 @@ from wimblepong.simple_ai import SimpleAi
 
 
 class PongTestbench(object):
-    def __init__(self, render=False):
+    def __init__(self, env, render=False):
         self.player1 = None
         self.player2 = None
         self.total_games = 0
         self.wins1 = 0
         self.wins2 = 0
         self.render = render
-        self.env = gym.make("WimblepongVisualMultiplayer-v0")
+        self.env = env
 
     def init_players(self, player1, player2=None):
         self.player1 = player1

@@ -8,9 +8,10 @@ from Pong_NN import PongNN as PNN
 
 class Agent(object):
 
-    def __init__(self):
+    def __init__(self, env):
 
         self.name = "GIORGIA SSJ"
+        self.env = env
 
         # TODO: Actor Critic from positions estimate
         self.train_device = "cpu"
@@ -34,6 +35,25 @@ class Agent(object):
 
     def get_action(self, observation):
 
+        player = observation["player"]
+        observation = observation["obs"]
+
+        def normalize_y(val):
+            # First, clamp it to screen bounds
+            y_min = self.env.SCREEN_RESOLUTION[0] - self.env.GAME_AREA_RESOLUTION[1]
+            y_max = self.env.SCREEN_RESOLUTION[0]
+            val = np.clip(val, y_min, y_max)
+            # Then, normalize to -1:1 range
+            val = (val-y_min) / (y_max-y_min) * 2 - 1
+            return val
+
+        def normalize_x(val):
+            # First, clamp it to screen bounds
+            val = np.clip(val, 0, self.env.GAME_AREA_RESOLUTION[0])
+            # Then, normalize to -1:1 range
+            val = val / self.env.GAME_AREA_RESOLUTION[0] * 2 - 1
+            return val
+
         # TODO: Preprocess frame to reduce dimensionality and emphasize paddles/ball over background
         observation = self._preprocess(observation)
 
@@ -41,17 +61,36 @@ class Agent(object):
         observation = torch.from_numpy(observation).float().to(self.train_device)
 
         # TODO: Predict state variables
-        ball_x = self.NN_ball_x(observation).detach().numpy()[0][0]
-        ball_y = self.NN_ball_y(observation).detach().numpy()[0][0]
-        my_y = self.NN_my_y(observation).detach().numpy()[0][0]
-        opponent_y = self.NN_opponent_y(observation).detach().numpy()[0][0]
+        ball_y = normalize_y(self.env.ball.y)
+        ball_py = normalize_y(self.env.ball.previous_y)
+        if player == 2:
+            player_pos = normalize_y(self.env.player2.y)
+            opponent_pos = normalize_y(self.env.player1.y)
+            ball_x = normalize_x(self.env.GAME_AREA_RESOLUTION[0] - self.env.ball.x)
+            ball_px = normalize_x(self.env.GAME_AREA_RESOLUTION[0] - self.env.ball.previous_x)
+        else:
+            player_pos = normalize_y(self.env.player1.y)
+            opponent_pos = normalize_y(self.env.player2.y)
+            ball_x = normalize_x(self.env.ball.x)
+            ball_px = normalize_x(self.env.ball.previous_x)
+
+        # pball_y = normalize_y(self.NN_ball_y(observation).detach().numpy()[0][0])
+        if self.prev_ball_y is not None:
+            ppball_y = self.prev_ball_y
+
+        # pmy_y = normalize_y(self.NN_my_y(observation).detach().numpy()[0][0])
+        # popponent_y = normalize_y(self.NN_opponent_y(observation).detach().numpy()[0][0])
+        # pball_x = normalize_x(self.NN_ball_x(observation).detach().numpy()[0][0])
+        if self.prev_ball_x is not None:
+            ppball_x = self.prev_ball_x
+
         if self.prev_ball_x is None:
             self.prev_ball_x = ball_x
         if self.prev_ball_y is None:
             self.prev_ball_y = ball_y
 
         # TODO: Create approximated positions from supervised predictions
-        positions = np.array([my_y, opponent_y, ball_x, ball_y, self.prev_ball_x, self.prev_ball_y])
+        positions = np.array([player_pos, opponent_pos, ball_x, ball_y, ball_px, self.prev_ball_y])
 
         # TODO: Store ball predictions for next observation
         self.prev_ball_x = ball_x

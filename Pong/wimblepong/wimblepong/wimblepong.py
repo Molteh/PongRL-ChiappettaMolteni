@@ -564,7 +564,8 @@ class Wimblepong(gym.core.Env):
             ball_py = normalize_y(self.ball.previous_y)
             observation = np.array([player_pos, opponent_pos, ball_x, ball_y,
                                     ball_px, ball_py], dtype=np.float)
-        return observation
+
+        return {"obs": observation, "player": player}
 
     def render(self):
         """
