@@ -17,7 +17,7 @@ class Agent(object):
         self.values = []
         self.prev_obs = None
 
-    def train(self, env, opponent, resume=False, print_things=True, train_run_id=285, train_episodes=100000):
+    def train(self, env, opponent, resume=False, print_things=True, train_run_id=285, train_episodes=5000):
 
         # TODO: Set policy network and optimizer according to environment dimensionalities
         if not resume:
@@ -83,8 +83,8 @@ class Agent(object):
             plt.show()
             print("Training finished.")
 
-        torch.save(self.policy.state_dict(), "model_100actor50critic1entropy.mdl")
-        torch.save(self.optimizer.state_dict(), "opt_model_100actor50critic1entropy.mdl")
+        torch.save(self.policy.state_dict(), "model.mdl")
+        torch.save(self.optimizer.state_dict(), "opt_model.mdl")
 
     def get_action(self, observation):
         action, action_prob = self.get_action_train(observation)
@@ -151,7 +151,7 @@ class Agent(object):
         actor_loss = loss.mean()
         critic_loss = advantages.pow(2).mean()
         entropy_loss = entropies.mean()
-        actor_critic_loss = actor_loss + 0.50 * critic_loss + 0.01 * entropy_loss
+        actor_critic_loss = 1.0 * actor_loss + 1.0 * critic_loss + 0.05 * entropy_loss
 
         # TODO: Compute the gradients of loss w.r.t. network parameters
         actor_critic_loss.backward()
