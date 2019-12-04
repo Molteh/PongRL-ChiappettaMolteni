@@ -1,11 +1,9 @@
 import argparse
 import sys
 import os
-from pong_testbench import PongTestbench
-from matplotlib import font_manager
 import importlib
 
-from test_agents.TRPOAgent.models import DQNRegressor
+from pong_testbench import PongTestbench
 
 parser = argparse.ArgumentParser()
 parser.add_argument("dir1", type=str, help="Directory to agent 1 to be tested.")
@@ -17,10 +15,10 @@ parser.add_argument("--games", "-g", type=int, default=100, help="number of game
 args = parser.parse_args()
 
 sys.path.insert(0, args.dir1)
-import SupervisedAgent
+import agent
 orig_wd = os.getcwd()
 os.chdir(args.dir1)
-agent1 = SupervisedAgent.NNAgent()
+agent1 = agent.Agent()
 agent1.load_model()
 os.chdir(orig_wd)
 del sys.path[0]

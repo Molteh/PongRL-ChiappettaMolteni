@@ -11,7 +11,7 @@ class PongTestbench(object):
         self.wins1 = 0
         self.wins2 = 0
         self.render = render
-        self.env = gym.make("WimblepongMultiplayer-v0")
+        self.env = gym.make("WimblepongVisualMultiplayer-v0")
 
     def init_players(self, player1, player2=None):
         self.player1 = player1
