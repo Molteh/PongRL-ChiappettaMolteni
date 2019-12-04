@@ -11,14 +11,14 @@ import argparse
 
 from test_agents.DQNAgent.agent_train_with_history import Agent as DQNAgent
 
-parser = argparse.ArgumentParser()
-parser.add_argument("dir1", type=str, help="Directory to agent 1 to be trained.")
-parser.add_argument("dir2", type=str, default=None, nargs="?",
-                    help="Directory to agent 2 to be used as opponent in agent 1 training. If empty, SimpleAI is used instead.")
-parser.add_argument("--render", "-r", action="store_true", help="Render the competition.")
-parser.add_argument("--games", "-g", type=int, default=100, help="number of games.")
+#parser = argparse.ArgumentParser()
+#parser.add_argument("dir1", type=str, help="Directory to agent 1 to be trained.")
+#parser.add_argument("dir2", type=str, default=None, nargs="?",
+#                    help="Directory to agent 2 to be used as opponent in agent 1 training. If empty, SimpleAI is used instead.")
+#parser.add_argument("--render", "-r", action="store_true", help="Render the competition.")
+#parser.add_argument("--games", "-g", type=int, default=100, help="number of games.")
 
-args = parser.parse_args()
+#args = parser.parse_args()
 
 # set up logging
 logging.basicConfig(level=logging.INFO, filename='dqn.log', filemode='w', format='%(name)s - %(levelname)s - %(message)s')
@@ -92,6 +92,9 @@ for ep in range(num_episodes):
         state = next_state
 
         if done:
+            # EMPTY memory
+            agent.history.empty()
+
             if reward > 0:
                 wins += 1
 

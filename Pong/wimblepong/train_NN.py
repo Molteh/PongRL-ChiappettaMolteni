@@ -141,7 +141,7 @@ def sample(env, batch_size, prob):
             action1 = player.get_action()
             ob1, rew1, done, info = env.step(action1)
             if args.housekeeping and np.random.uniform() > prob:
-                samples.append([preprocess(ob1), env.ball.x, env.player1.y])
+                samples.append([preprocess(ob1), env.ball.x, env.player2.y])
             if not args.headless:
                 env.render()
             if done:
@@ -218,12 +218,12 @@ CNN = PongNN()
 
 # load previous model
 if load_model:
-    weights = torch.load("weights_myYNN.mdl", map_location=torch.device("cpu"))
+    weights = torch.load("weights_oppYNN.mdl", map_location=torch.device("cpu"))
     CNN.load_state_dict(weights, strict=False)
 
 if train:
     train_net(CNN, batch_size=train_batch_size, n_epochs=n_epochs, lr=learning_rate)
-    torch.save(CNN.state_dict(), "weights_%s.mdl" % "myYNN")
+    torch.save(CNN.state_dict(), "weights_%s.mdl" % "oppYNN")
 
 # always run test at the end
 test_set = sample(env, test_set_size, test_sampling_prob)
