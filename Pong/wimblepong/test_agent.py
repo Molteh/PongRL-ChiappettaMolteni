@@ -15,7 +15,7 @@ parser.add_argument("--games", "-g", type=int, default=100, help="number of game
 
 args = parser.parse_args()
 
-env = gym.make("WimblepongVisualMultiplayer-v0")
+env = gym.make("WimblepongMultiplayer-v0")
 
 sys.path.insert(0, args.dir1)
 import agent
