@@ -97,7 +97,7 @@ class Agent(object):
         opponent_y_weights = torch.load("weights_oppYNN.mdl", map_location=torch.device("cpu"))
         self.NN_opponent_y.load_state_dict(opponent_y_weights, strict=False)
 
-    def train(self, env, opponent, resume=False, print_things=True, train_episodes=20000):
+    def train(self, env, opponent, resume=False, print_things=True, train_episodes=100000):
 
         # TODO: Set policy network and optimizer according to environment dimensionalities
         if not resume:
@@ -160,6 +160,7 @@ class Agent(object):
                 plt.legend(["Reward", "100-episode average"])
                 plt.title("Reward history")
                 plt.show()
+                torch.save(self.policy.state_dict(), "model_{}.mdl".format(episode_number))
 
         # Training is finished - plot rewards
         if print_things:
@@ -171,7 +172,6 @@ class Agent(object):
             print("Training finished.")
 
         torch.save(self.policy.state_dict(), "model.mdl")
-        torch.save(self.optimizer.state_dict(), "opt_model.mdl")
 
     def _get_action_train(self, observation, evaluation=False):
 
