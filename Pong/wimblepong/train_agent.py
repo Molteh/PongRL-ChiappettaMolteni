@@ -23,7 +23,7 @@ sys.path.insert(0, args.dir1)
 import agent
 orig_wd = os.getcwd()
 os.chdir(args.dir1)
-agent1 = agent.Agent(env)
+agent1 = agent.Agent()
 os.chdir(orig_wd)
 del sys.path[0]
 
