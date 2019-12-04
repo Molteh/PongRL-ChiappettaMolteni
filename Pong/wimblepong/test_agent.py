@@ -1,10 +1,9 @@
 import argparse
 import sys
 import os
-import importlib
-import gym
-
 from pong_testbench import PongTestbench
+from matplotlib import font_manager
+import importlib
 
 parser = argparse.ArgumentParser()
 parser.add_argument("dir1", type=str, help="Directory to agent 1 to be tested.")
@@ -15,13 +14,11 @@ parser.add_argument("--games", "-g", type=int, default=100, help="number of game
 
 args = parser.parse_args()
 
-env = gym.make("WimblepongMultiplayer-v0")
-
 sys.path.insert(0, args.dir1)
 import agent
 orig_wd = os.getcwd()
 os.chdir(args.dir1)
-agent1 = agent.Agent(env)
+agent1 = agent.Agent()
 agent1.load_model()
 os.chdir(orig_wd)
 del sys.path[0]
@@ -37,6 +34,6 @@ if args.dir2:
 else:
     agent2 = None
 
-testbench = PongTestbench(env, args.render)
+testbench = PongTestbench(args.render)
 testbench.init_players(agent1, agent2)
 testbench.run_test(args.games)

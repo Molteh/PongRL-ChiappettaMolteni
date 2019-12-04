@@ -8,10 +8,9 @@ from Pong_NN import PongNN as PNN
 
 class Agent(object):
 
-    def __init__(self, env):
+    def __init__(self):
 
         self.name = "GIORGIA SSJ"
-        self.env = env
 
         # TODO: Actor Critic from positions estimate
         self.train_device = "cpu"
@@ -30,30 +29,17 @@ class Agent(object):
         self.NN_ball_y = PNN()
         self.NN_my_y = PNN()
         self.NN_opponent_y = PNN()
-        self.prev_ball_x = None
         self.prev_ball_y = None
 
     def get_action(self, observation):
 
-        return self._get_action_train(observation)
-
-        player = observation["player"]
-        observation = observation["obs"]
-
         def normalize_y(val):
             # First, clamp it to screen bounds
-            y_min = self.env.SCREEN_RESOLUTION[0] - self.env.GAME_AREA_RESOLUTION[1]
-            y_max = self.env.SCREEN_RESOLUTION[0]
+            y_min = 35
+            y_max = 235
             val = np.clip(val, y_min, y_max)
             # Then, normalize to -1:1 range
             val = (val-y_min) / (y_max-y_min) * 2 - 1
-            return val
-
-        def normalize_x(val):
-            # First, clamp it to screen bounds
-            val = np.clip(val, 0, self.env.GAME_AREA_RESOLUTION[0])
-            # Then, normalize to -1:1 range
-            val = val / self.env.GAME_AREA_RESOLUTION[0] * 2 - 1
             return val
 
         # TODO: Preprocess frame to reduce dimensionality and emphasize paddles/ball over background
@@ -63,39 +49,17 @@ class Agent(object):
         observation = torch.from_numpy(observation).float().to(self.train_device)
 
         # TODO: Predict state variables
-        ball_y = normalize_y(self.env.ball.y)
-        ball_py = normalize_y(self.env.ball.previous_y)
-        if player == 2:
-            player_pos = normalize_y(self.env.player2.y)
-            opponent_pos = normalize_y(self.env.player1.y)
-            ball_x = normalize_x(self.env.GAME_AREA_RESOLUTION[0] - self.env.ball.x)
-            ball_px = normalize_x(self.env.GAME_AREA_RESOLUTION[0] - self.env.ball.previous_x)
-        else:
-            player_pos = normalize_y(self.env.player1.y)
-            opponent_pos = normalize_y(self.env.player2.y)
-            ball_x = normalize_x(self.env.ball.x)
-            ball_px = normalize_x(self.env.ball.previous_x)
+        my_y = normalize_y(self.NN_my_y(observation).detach().numpy()[0][0])
+        opponent_y = normalize_y(self.NN_opponent_y(observation).detach().numpy()[0][0])
+        ball_y = normalize_y(self.NN_ball_y(observation).detach().numpy()[0][0])
 
-        # pball_y = normalize_y(self.NN_ball_y(observation).detach().numpy()[0][0])
-        if self.prev_ball_y is not None:
-            ppball_y = self.prev_ball_y
-
-        # pmy_y = normalize_y(self.NN_my_y(observation).detach().numpy()[0][0])
-        # popponent_y = normalize_y(self.NN_opponent_y(observation).detach().numpy()[0][0])
-        # pball_x = normalize_x(self.NN_ball_x(observation).detach().numpy()[0][0])
-        if self.prev_ball_x is not None:
-            ppball_x = self.prev_ball_x
-
-        if self.prev_ball_x is None:
-            self.prev_ball_x = ball_x
         if self.prev_ball_y is None:
             self.prev_ball_y = ball_y
 
         # TODO: Create approximated positions from supervised predictions
-        positions = np.array([player_pos, opponent_pos, ball_x, ball_y, ball_px, self.prev_ball_y])
+        positions = np.array([my_y, opponent_y, ball_y, self.prev_ball_y])
 
         # TODO: Store ball predictions for next observation
-        self.prev_ball_x = ball_x
         self.prev_ball_y = ball_y
 
         # TODO: Create positions tensor
@@ -111,7 +75,6 @@ class Agent(object):
 
     def reset(self):
         self.prev_obs = None
-        self.prev_ball_x = None
         self.prev_ball_y = None
 
     def get_name(self):
@@ -120,6 +83,7 @@ class Agent(object):
     def load_model(self):
 
         # TODO: Actor Critic policy and optimizer weights to evaluate or resume training
+        self.policy = Policy(4, 3).to(self.train_device)
         weights = torch.load("model.mdl", map_location=torch.device("cpu"))
         self.policy.load_state_dict(weights, strict=False)
 
@@ -209,7 +173,7 @@ class Agent(object):
         torch.save(self.policy.state_dict(), "model.mdl")
         torch.save(self.optimizer.state_dict(), "opt_model.mdl")
 
-    def _get_action_train(self, observation):
+    def _get_action_train(self, observation, evaluation=False):
 
         observation = observation["obs"]
 
@@ -222,8 +186,11 @@ class Agent(object):
         # TODO: Forward positions through the policy network -> Actor provides policy actions dist, Critic provides state value prediction
         dist, value = self.policy.forward(x)  # Train using states
 
-        # TODO: Sample action from probability distribution
-        action = dist.sample()
+        # TODO: Return max if evaluation, else sample from the distribution returned by the policy
+        if evaluation:
+            action = torch.argmax(dist.probs)
+        else:
+            action = dist.sample()
 
         # TODO: Calculate the log probability of the action
         act_log_prob = dist.log_prob(action)

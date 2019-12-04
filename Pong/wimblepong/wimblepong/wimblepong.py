@@ -565,7 +565,7 @@ class Wimblepong(gym.core.Env):
             observation = np.array([player_pos, opponent_pos, ball_x, ball_y,
                                     ball_px, ball_py], dtype=np.float)
 
-        return {"obs": observation, "player": player}
+        return observation
 
     def render(self):
         """
