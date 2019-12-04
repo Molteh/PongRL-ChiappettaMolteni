@@ -29,10 +29,18 @@ class Agent(object):
         self.NN_ball_y = PNN()
         self.NN_my_y = PNN()
         self.NN_opponent_y = PNN()
-        self.prev_ball_x = None
         self.prev_ball_y = None
 
     def get_action(self, observation):
+
+        def normalize_y(val):
+            # First, clamp it to screen bounds
+            y_min = 35
+            y_max = 235
+            val = np.clip(val, y_min, y_max)
+            # Then, normalize to -1:1 range
+            val = (val-y_min) / (y_max-y_min) * 2 - 1
+            return val
 
         # TODO: Preprocess frame to reduce dimensionality and emphasize paddles/ball over background
         observation = self._preprocess(observation)
@@ -41,20 +49,17 @@ class Agent(object):
         observation = torch.from_numpy(observation).float().to(self.train_device)
 
         # TODO: Predict state variables
-        ball_x = self.NN_ball_x(observation).detach().numpy()[0][0]
-        ball_y = self.NN_ball_y(observation).detach().numpy()[0][0]
-        my_y = self.NN_my_y(observation).detach().numpy()[0][0]
-        opponent_y = self.NN_opponent_y(observation).detach().numpy()[0][0]
-        if self.prev_ball_x is None:
-            self.prev_ball_x = ball_x
+        my_y = normalize_y(self.NN_my_y(observation).detach().numpy()[0][0])
+        opponent_y = normalize_y(self.NN_opponent_y(observation).detach().numpy()[0][0])
+        ball_y = normalize_y(self.NN_ball_y(observation).detach().numpy()[0][0])
+
         if self.prev_ball_y is None:
             self.prev_ball_y = ball_y
 
         # TODO: Create approximated positions from supervised predictions
-        positions = np.array([my_y, opponent_y, ball_x, ball_y, self.prev_ball_x, self.prev_ball_y])
+        positions = np.array([my_y, opponent_y, ball_y, self.prev_ball_y])
 
         # TODO: Store ball predictions for next observation
-        self.prev_ball_x = ball_x
         self.prev_ball_y = ball_y
 
         # TODO: Create positions tensor
@@ -63,14 +68,13 @@ class Agent(object):
         # TODO: Forward positions through the policy network -> Actor provides policy actions dist, Critic provides state value prediction
         dist, value = self.policy.forward(positions)
 
-        # TODO: Sample action from probability distribution
+        # TODO: Get best action from probability distribution
         action = torch.argmax(dist.probs)
 
         return action
 
     def reset(self):
         self.prev_obs = None
-        self.prev_ball_x = None
         self.prev_ball_y = None
 
     def get_name(self):
@@ -79,13 +83,9 @@ class Agent(object):
     def load_model(self):
 
         # TODO: Actor Critic policy and optimizer weights to evaluate or resume training
-        self.policy = Policy(6, 3).to(self.train_device)
+        self.policy = Policy(4, 3).to(self.train_device)
         weights = torch.load("model.mdl", map_location=torch.device("cpu"))
         self.policy.load_state_dict(weights, strict=False)
-        self.optimizer = torch.optim.RMSprop(self.policy.parameters(), lr=5e-4)
-        opt_weights = torch.load("opt_model.mdl", map_location=torch.device("cpu"))
-        self.optimizer.load_state_dict(opt_weights)
-        self.policy.eval()
 
         # TODO: Supervised learning policies weights used to preprocess image into positions
         ball_x_weights = torch.load("weights_XNN.mdl", map_location=torch.device("cpu"))
@@ -97,16 +97,16 @@ class Agent(object):
         opponent_y_weights = torch.load("weights_oppYNN.mdl", map_location=torch.device("cpu"))
         self.NN_opponent_y.load_state_dict(opponent_y_weights, strict=False)
 
-    def train(self, env, opponent, resume=False, print_things=True, train_episodes=5000):
+    def train(self, env, opponent, resume=False, print_things=True, train_episodes=20000):
 
         # TODO: Set policy network and optimizer according to environment dimensionalities
         if not resume:
-            obs_space_dim = env.observation_space.shape[-1]
+            obs_space_dim = env.observation_space.shape[-1]-2
             act_space_dim = env.action_space.n
             self.policy = Policy(obs_space_dim, act_space_dim).to(self.train_device)
-            self.optimizer = torch.optim.RMSprop(self.policy.parameters(), lr=5e-4)
 
-        self.policy.train()
+        self.optimizer = torch.optim.RMSprop(self.policy.parameters(), lr=5e-3)
+        self.policy.eval()
 
         # TODO: Set arrays to keep track of rewards and then plot them
         reward_history, timestep_history = [], []
@@ -118,7 +118,6 @@ class Agent(object):
             timesteps = 0
             done = False
             # Reset the environment and observe the initial state
-            self.reset()
             observation, opponent_obs = env.reset()
 
             # Loop until the episode is over
@@ -155,6 +154,13 @@ class Agent(object):
             # MC policy gradient update at the end of the episode
             self._episode_finished(episode_number)
 
+            if episode_number > 0 and episode_number % 1000 == 0:
+                plt.plot(reward_history)
+                plt.plot(average_reward_history)
+                plt.legend(["Reward", "100-episode average"])
+                plt.title("Reward history")
+                plt.show()
+
         # Training is finished - plot rewards
         if print_things:
             plt.plot(reward_history)
@@ -167,40 +173,22 @@ class Agent(object):
         torch.save(self.policy.state_dict(), "model.mdl")
         torch.save(self.optimizer.state_dict(), "opt_model.mdl")
 
-    def _get_action_train(self, observation):
+    def _get_action_train(self, observation, evaluation=False):
 
-        # TODO: Preprocess frame to reduce dimensionality and emphasize paddles/ball over background
-        processed_observation = self._preprocess(observation)
+        # TODO: Preprocess observation to use only vertical positions
+        processed_observation = np.array((observation[0], observation[1], observation[3], observation[5]))
 
         # TODO: Create observation tensor
-        observation = torch.from_numpy(processed_observation).float().to(self.train_device)
-
-        # TODO: Predict state variables
-        ball_x = self.NN_ball_x(observation).detach().numpy()[0][0]
-        ball_y = self.NN_ball_y(observation).detach().numpy()[0][0]
-        my_y = self.NN_my_y(observation).detach().numpy()[0][0]
-        opponent_y = self.NN_opponent_y(observation).detach().numpy()[0][0]
-        if self.prev_ball_x is None:
-            self.prev_ball_x = ball_x
-        if self.prev_ball_y is None:
-            self.prev_ball_y = ball_y
-
-        # TODO: Create approximated positions from supervised predictions
-        positions = np.array([my_y, opponent_y, ball_x, ball_y, self.prev_ball_x, self.prev_ball_y])
-
-        # TODO: Store ball predictions for next observation
-        self.prev_ball_x = ball_x
-        self.prev_ball_y = ball_y
-
-        # TODO: Create positions tensor
-        positions = torch.from_numpy(positions).float().to(self.train_device)
+        x = torch.from_numpy(processed_observation).float().to(self.train_device)
 
         # TODO: Forward positions through the policy network -> Actor provides policy actions dist, Critic provides state value prediction
-        # dist, value = self.policy.forward(positions)  # Train using images
-        dist, value = self.policy.forward(observation)  # Train using states
+        dist, value = self.policy.forward(x)  # Train using states
 
-        # TODO: Sample action from probability distribution
-        action = torch.argmax(dist.probs)
+        # TODO: Return max if evaluation, else sample from the distribution returned by the policy
+        if evaluation:
+            action = torch.argmax(dist.probs)
+        else:
+            action = dist.sample()
 
         # TODO: Calculate the log probability of the action
         act_log_prob = dist.log_prob(action)
@@ -208,7 +196,6 @@ class Agent(object):
         # TODO: Save state - action prob - value
         self.states.append(observation)
         self.action_probs.append(act_log_prob)
-        self.entropies.append(dist.entropy())
         self.values.append(value)
 
         return action, act_log_prob
@@ -218,12 +205,11 @@ class Agent(object):
         # TODO: Stack action_probs, rewards and values arrays
         action_probs = torch.stack(self.action_probs, dim=0) \
                 .to(self.train_device).squeeze(-1)
-        entropies = torch.stack(self.entropies, dim=0).to(self.train_device).squeeze(-1)
         rewards = torch.stack(self.rewards, dim=0).to(self.train_device).squeeze(-1)
         values = torch.stack(self.values, dim=0).to(self.train_device).squeeze(-1)
 
         # TODO: Reset values for next episode
-        self.states, self.action_probs, self.entropies, self.rewards, self.values = [], [], [], [], []
+        self.states, self.action_probs, self.rewards, self.values = [], [], [], []
 
         # TODO: Compute discounted rewards and normalize
         rewards = self._discount_rewards(rewards, gamma=self.gamma)
@@ -236,8 +222,7 @@ class Agent(object):
         loss = torch.sum(-action_probs * advantages.detach())
         actor_loss = loss.mean()
         critic_loss = advantages.pow(2).mean()
-        entropy_loss = entropies.mean()
-        actor_critic_loss = 1.0 * actor_loss + 1.0 * critic_loss + 0.05 * entropy_loss
+        actor_critic_loss = actor_loss + critic_loss
 
         # TODO: Compute the gradients of loss w.r.t. network parameters
         actor_critic_loss.backward()

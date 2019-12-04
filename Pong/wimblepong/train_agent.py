@@ -63,11 +63,4 @@ if resume:
     os.chdir(orig_wd)
     del sys.path[0]
 
-if "REINFORCE" in args.dir1:
-    agent1.train(env, agent2, batch_size, learning_rate, gamma, decay_rate, render)
-elif "ActorCritic" in args.dir1:
-    agent1.train(env, agent2, batch_size, learning_rate, gamma, decay_rate, mom_rate, td_step, gamma_power, shrink_step, rmsprop, render)
-elif "AC_Anto" in args.dir1:
-    agent1.train(env, agent2, resume)
-elif "ACVisual_Anto" in args.dir1:
-    agent1.train(env, agent2, resume)
+agent1.train(env, agent2, resume)

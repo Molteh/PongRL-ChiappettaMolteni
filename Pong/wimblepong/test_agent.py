@@ -1,9 +1,9 @@
 import argparse
 import sys
 import os
-import importlib
-
 from pong_testbench import PongTestbench
+from matplotlib import font_manager
+import importlib
 
 parser = argparse.ArgumentParser()
 parser.add_argument("dir1", type=str, help="Directory to agent 1 to be tested.")
