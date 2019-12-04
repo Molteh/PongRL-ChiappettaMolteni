@@ -1,6 +1,6 @@
 import torch
 import torch.nn.functional as F
-from torch.distributions import Normal, Categorical
+from torch.distributions import Categorical
 
 class Policy(torch.nn.Module):
     def __init__(self, state_space, action_space):
