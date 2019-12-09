@@ -2,11 +2,11 @@
 
 We started by following two main paths:
 
- Start from the main resource provided in the instructions for the project (2) and try to adapt
+- Start from the main resource provided in the instructions for the project (2) and try to adapt
 to our environment the relative REINFORCE algorithm in (4) and its improvement with an
 Actor Critic approach in (5)
 
- Use two of the most advanced techniques studied during the course, DQN and Actor Critic,
+- Use two of the most advanced techniques studied during the course, DQN and Actor Critic,
 and adapt the code produced by ourselves during the weekly assignments to this case. For
 DQN, the theoretical reference was provided in (6), while for the Actor Critic we referred
 again to (2)
