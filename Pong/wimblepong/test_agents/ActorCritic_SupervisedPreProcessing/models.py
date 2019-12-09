@@ -20,6 +20,11 @@ class Policy(torch.nn.Module):
                 torch.nn.init.normal_(m.weight)
                 torch.nn.init.zeros_(m.bias)
 
+    def flatten(self, x):
+        batch_size = x.size()[0]
+        x = x.view(batch_size, -1)
+        return x
+
     def forward(self, x):
 
         # TODO: Actor
