@@ -44,7 +44,7 @@ After having trained the agent against SimpleAi, this implementation has guarant
 formance that, from game to game, ranged between 35% to 55% victory rate against SimpleAi.
 This was the final agent and model submitted for the evaluation. We also tried to train the agent
 against himself or against the agent named SomeAgent provided by the course instructors, but in
-both cases, our agent did not learn a behavior that could be eective against SimpleAi.
+both cases, our agent did not learn a behavior that could be effective against SimpleAi.
 
 The last approach that we tried to implement was an implementation of the Experience Replay
 buffer in our Actor Critic agent, using a sample of recently played episodes (and not just one) for
